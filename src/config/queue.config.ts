@@ -1,5 +1,6 @@
 import { BullModule } from '@nestjs/bullmq';
-export const QueueConfig:any = BullModule.forRoot({
+import { FILE, MAIL, SMS } from 'src/enums/queue.enums';
+export const QueueConfig: any = BullModule.forRoot({
   connection: {
     url: `${process.env.REDIS_URL}/1`,
   },
@@ -9,3 +10,9 @@ export const QueueConfig:any = BullModule.forRoot({
     attempts: 3,
   },
 });
+
+export const QueueRegister = BullModule.registerQueue(
+  { name: MAIL },
+  { name: SMS },
+  { name: FILE },
+)

@@ -135,7 +135,7 @@ export class UserOtpVerification {
   })
   @IsString()
   @IsNotEmpty()
-  code?: string;
+  code: string;
 
   @ApiProperty({
     description: 'Foreign key to the users model',
@@ -202,7 +202,7 @@ export class OtpDTO extends EmailDTO {
   })
   @IsString()
   @IsNotEmpty()
-  code?: string;
+  code: string;
 
   @ApiProperty({
     description: 'Foreign key to the users model',
@@ -229,7 +229,7 @@ export class InviteUserDTO extends EmailDTO {
   @ApiPropertyOptional({ example: '1234ABDC' })
   @IsOptional()
   @IsString()
-  memberId?: string;
+  memberId: string;
 
   @ApiPropertyOptional({ example: 'Doe' })
   @IsString()

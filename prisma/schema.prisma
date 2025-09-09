@@ -5,96 +5,97 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id            String        @id @default(uuid())
-  email         String?       @unique(map: "index_users_on_email")
-  phoneNumber   String?       @unique(map: "index_users_on_phone_number") @map("phone_number")
-  googleId      String?       @map("google_id")
-  type          String?
-  password      String?
-  active        Boolean       @default(false)
-  locked        Boolean       @default(false)
-  deleted       Boolean       @default(false)
-  verified      Boolean       @default(false)
-  phoneVerified Boolean       @default(false) @map("phone_verified")
-  deletedAt     DateTime?     @map("deleted_at")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
-  profile       Profile?      @relation(name: "user_profile")
-  userRole      UserRole[]    @relation(name: "user_user_role")
-  task          Task[]
-  leave         Leave[]
-  attendance    Attendance[]
-  note          Note[]
-  celebration   Celebration[]
-  rota          Rota[]
-  invitation    invitation[]  @relation(name: "invitation_user")
-  invitees      invitation[]  @relation(name: "invitation_invited_by_user")
+  id                                                       String            @id @default(uuid())
+  email                                                    String?           @unique(map: "index_users_on_email")
+  phoneNumber                                              String?           @unique(map: "index_users_on_phone_number") @map("phone_number")
+  googleId                                                 String?           @map("google_id")
+  type                                                     String?
+  password                                                 String?
+  active                                                   Boolean           @default(false)
+  locked                                                   Boolean           @default(false)
+  deleted                                                  Boolean           @default(false)
+  verified                                                 Boolean           @default(false)
+  phoneVerified                                            Boolean           @default(false) @map("phone_verified")
+  deletedAt                                                DateTime?         @map("deleted_at")
+  createdAt                                                DateTime          @default(now()) @map("created_at")
+  updatedAt                                                DateTime          @updatedAt @map("updated_at")
+  attendance                                               Attendance[]
+  celebration                                              Celebration[]
+  invitees                                                 invitation[]      @relation("invitation_invited_by_user")
+  invitation                                               invitation[]      @relation("invitation_user")
+  leave_policies_leave_policies_approval_level_1_idTousers LeavePolicy[]     @relation("leave_policies_approval_level_1_idTousers")
+  leave_policies_leave_policies_approval_level_2_idTousers LeavePolicy[]     @relation("leave_policies_approval_level_2_idTousers")
+  leave                                                    Leave[]
+  note                                                     Note[]
+  profile                                                  Profile?          @relation("user_profile")
+  rota                                                     Rota[]
+  task_assignees                                           task_assignees[]
+  task_stage_logs                                          task_stage_logs[]
+  tasks                                                    Task[]
+  userRole                                                 UserRole[]        @relation("user_user_role")
+  leave_policies_PolicyMembers                             LeavePolicy[]     @relation("PolicyMembers")
 
   @@map("users")
 }
 
 model Profile {
-  id          String   @id @default(uuid())
-  firstName   String?  @map("first_name")
-  lastName    String?  @map("last_name")
-  email       String?  @unique
-  imageUrl    String?  @map("image_url")
-  phoneNumber String?  @map("phone_number")
-  userId      String   @unique @map("user_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  deleted     Boolean  @default(false)
-  user        User     @relation(fields: [userId], references: [id], name: "user_profile")
-
-  profileBranch ProfileBranch[]
+  id            String          @id @default(uuid())
+  firstName     String?         @map("first_name")
+  lastName      String?         @map("last_name")
+  email         String?         @unique
+  imageUrl      String?         @map("image_url")
+  phoneNumber   String?         @map("phone_number")
+  userId        String          @unique @map("user_id")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  deleted       Boolean         @default(false)
   status        LeaveStatus     @default(APPROVED)
-  employee      Employee?
   Branch        Branch[]
+  employee      Employee?
+  profileBranch ProfileBranch[]
+  user          User            @relation("user_profile", fields: [userId], references: [id])
 
   @@map("profiles")
 }
 
 model ProfileBranch {
-  branchId String @map("branch_id")
-  userId   String @map("user_id")
-
-  branch  Branch? @relation(fields: [branchId], references: [id])
-  profile Profile @relation(fields: [userId], references: [userId])
+  branchId String  @map("branch_id")
+  userId   String  @map("user_id")
+  branch   Branch  @relation(fields: [branchId], references: [id])
+  profile  Profile @relation(fields: [userId], references: [userId])
 
   @@id([branchId, userId])
   @@map("profile_branches")
 }
 
 model Employee {
-  id             String         @id @default(uuid())
-  userId         String         @unique @map("user_id")
-  companyId      String         @map("company_id")
-  address        String?
-  phoneNumber    String?        @map("phone_number")
-  maritalStatus  MaritalStatus? @map("marital_status")
-  bio            String?        @db.Text
-  interest       String?        @db.Text
-  Gender         Gender?
-  religion       String?
-  altPhoneNumber String?        @map("alt_phone_number")
-  dateOfBirth    String?        @map("date_of_birth")
-  bloodGroup     BloodGroup?    @map("blood_group")
-  allergy        String?        @db.Text
-  countryCode    String?        @map("country_code")
-  timezone       String?
-  currencyCode   String?        @map("currency_code")
-  payRate        Float          @default(0) @map("pay_rate")
-  period         BillingCycle   @default(PER_HOUR)
-
-  emergencyContact EmergencyContact?
-  jobInformation   JobInformation?
+  id               String            @id @default(uuid())
+  companyId        String            @map("company_id")
+  address          String?
+  phoneNumber      String?           @map("phone_number")
+  maritalStatus    MaritalStatus?    @map("marital_status")
+  bio              String?
+  interest         String?
+  Gender           Gender?
+  countryCode      String?           @map("country_code")
+  religion         String?
+  altPhoneNumber   String?           @map("alt_phone_number")
+  dateOfBirth      String?           @map("date_of_birth")
+  bloodGroup       BloodGroup?       @map("blood_group")
+  allergy          String?
+  userId           String            @unique @map("user_id")
+  currencyCode     String?           @map("currency_code")
+  payRate          Float             @default(0) @map("pay_rate")
+  period           BillingCycle      @default(PER_HOUR)
+  timezone         String?
   bankInformation  BankInformation?
-  profile          Profile           @relation(fields: [userId], references: [userId])
+  emergencyContact EmergencyContact?
   company          Company           @relation(fields: [companyId], references: [id])
+  profile          Profile           @relation(fields: [userId], references: [userId])
+  jobInformation   JobInformation?
 
   @@unique([userId, companyId])
   @@index([userId, companyId])
@@ -117,270 +118,220 @@ model JobInformation {
   id             String    @id @default(uuid())
   memberId       String?   @map("member_id")
   employeeId     String    @unique @map("employee_id")
-  jobRoleId      String?
-  currencyCode   String?
-  payRatePerHour Float?    @default(0)
-  breakTime      String?   @map("break_time")
   employmentDate String?   @map("employment_date")
   workType       WorkType? @map("work_type")
   location       String?
   userId         String?   @unique @map("user_id")
-
-  employee Employee @relation(fields: [employeeId], references: [id])
-  jobRole  jobRole? @relation(fields: [jobRoleId], name: "employee_job_role", references: [id])
+  jobRoleId      String?
+  currencyCode   String?
+  payRatePerHour Float?    @default(0)
+  breakTime      String?   @map("break_time")
+  employee       Employee  @relation(fields: [employeeId], references: [id])
+  jobRole        jobRole?  @relation("employee_job_role", fields: [jobRoleId], references: [id])
 
   @@map("job_information")
 }
 
 model BankInformation {
-  id            String  @id @default(uuid())
-  employeeId    String  @unique @map("employee_id")
-  accountNumber String? @map("account_number")
-  ifsCode       String? @map("ifs_code")
-  bankName      String? @map("bank_name")
-  branchName    String? @map("branch_name")
-
-  employee Employee @relation(fields: [employeeId], references: [id])
+  id            String   @id @default(uuid())
+  employeeId    String   @unique @map("employee_id")
+  accountNumber String?  @map("account_number")
+  ifsCode       String?  @map("ifs_code")
+  bankName      String?  @map("bank_name")
+  branchName    String?  @map("branch_name")
+  employee      Employee @relation(fields: [employeeId], references: [id])
 
   @@map("bank_information")
 }
 
 model Company {
-  id                       String    @id @default(uuid())
-  name                     String?
-  bannerUrl                String?
-  phoneNumber              String?   @map("phone_number")
-  email                    String    @unique
-  heardAboutUs             String?   @map("heard_about_us")
-  totalEmployee            String?   @map("total_employee")
-  startWeek                WEEKDAY?  @default(MONDAY) @map("start_week")
-  currencyCode             String?   @map("currency_code")
-  address                  String?
-  taxId                    String?   @map("tax_id")
-  timezone                 String?
-  workingDays              WEEKDAY[] @map("working_days")
-  industry                 String?
-  memberTimezone           Boolean   @default(false) @map("member_timezone")
-  employeeWorkingDayChoice Boolean   @default(false) @map("employee_workingday_choice")
-  planId                   String?   @map("plan_id")
-  resumptionTime           String?   @map("resumption_time")
-  closingTime              String?   @map("closing_time")
-  breakTime                String?   @map("break_time")
-  displayRate              Boolean   @default(false) @map("display_rate")
-  profileVisibility        Boolean   @default(false) @map("profile_visibility")
-  countryTimeZone          Boolean   @default(false) @map("country_timezone")
-  aboutMe                  Boolean   @default(false) @map("about_me")
-  primaryInfo              Boolean   @default(false) @map("primary_info")
-  personalInfo             Boolean   @default(false) @map("personal_info")
-  emergencyContact         Boolean   @default(false) @map("emergency_contact")
-  jobDetails               Boolean   @default(false) @map("job_details")
-  bankingInfo              Boolean   @default(false) @map("banking_info")
-  identityInfo             Boolean   @default(false) @map("identity_info")
-  createdAt                DateTime  @default(now()) @map("created_at")
-  updatedAt                DateTime  @updatedAt @map("updated_at")
-  archived                 Boolean   @default(false)
-
-  plan                      Plan?                      @relation(fields: [planId], references: [id], onDelete: Cascade)
+  id                        String                     @id @default(uuid())
+  name                      String?
+  phoneNumber               String?                    @map("phone_number")
+  email                     String                     @unique
+  heardAboutUs              String?                    @map("heard_about_us")
+  totalEmployee             String?                    @map("total_employee")
+  industry                  String?
+  planId                    String?                    @map("plan_id")
+  resumptionTime            String?                    @map("resumption_time")
+  closingTime               String?                    @map("closing_time")
+  breakTime                 String?                    @map("break_time")
+  createdAt                 DateTime                   @default(now()) @map("created_at")
+  updatedAt                 DateTime                   @updatedAt @map("updated_at")
+  archived                  Boolean                    @default(false)
+  address                   String?
+  currencyCode              String?                    @map("currency_code")
+  employeeWorkingDayChoice  Boolean                    @default(false) @map("employee_workingday_choice")
+  memberTimezone            Boolean                    @default(false) @map("member_timezone")
+  startWeek                 WEEKDAY?                   @default(MONDAY) @map("start_week")
+  taxId                     String?                    @map("tax_id")
+  timezone                  String?
+  workingDays               WEEKDAY[]                  @map("working_days")
+  displayRate               Boolean                    @default(false) @map("display_rate")
+  bannerUrl                 String?
+  profileVisibility         Boolean                    @default(false) @map("profile_visibility")
+  aboutMe                   Boolean                    @default(false) @map("about_me")
+  bankingInfo               Boolean                    @default(false) @map("banking_info")
+  countryTimeZone           Boolean                    @default(false) @map("country_timezone")
+  emergencyContact          Boolean                    @default(false) @map("emergency_contact")
+  identityInfo              Boolean                    @default(false) @map("identity_info")
+  jobDetails                Boolean                    @default(false) @map("job_details")
+  personalInfo              Boolean                    @default(false) @map("personal_info")
+  primaryInfo               Boolean                    @default(false) @map("primary_info")
   branch                    Branch[]
-  task                      Task[]
-  leave                     Leave[]
-  userRole                  UserRole[]                 @relation(name: "user_company")
-  invitation                invitation[]
+  BreakComplianceSetting    BreakComplianceSetting?
+  plan                      Plan?                      @relation(fields: [planId], references: [id], onDelete: Cascade)
+  digiTimeSetting           DigiTimeSetting?
   employee                  Employee[]
-  jobRole                   jobRole[]                  @relation(name: "company_job_roles")
+  holidayRequestRuleSetting HolidayRequestRuleSetting?
+  invitation                invitation[]
+  jobRole                   jobRole[]                  @relation("company_job_roles")
+  leave_policies            LeavePolicy[]
+  leave                     Leave[]
   rotaRuleSetting           RotaRuleSetting?
   shiftTradeSetting         ShiftSetting?
-  holidayRequestRuleSetting HolidayRequestRuleSetting?
-  digiTimeSetting           DigiTimeSetting?
-  BreakComplianceSetting    BreakComplianceSetting[]
+  task_stages               task_stages[]
+  task                      Task[]
+  userRole                  UserRole[]                 @relation("user_company")
 
   @@map("companies")
 }
 
 model RotaRuleSetting {
-  id                    String  @id @default(uuid())
-  companyId             String  @unique @map("company_id")
-  allowMemberSwapShifts Boolean @default(false) @map("allow_member_swap_shifts")
-
-  minShiftDuration Int? @map("min_shift_duration") // in hours
-  maxShiftDuration Int? @map("max_shift_duration") // in hours
-
-  minTimeBetweenShifts   Int? @map("min_time_between_shifts") // in hours
-  maxConsecutiveWorkdays Int? @map("max_consecutive_workdays") // in days
-
-  maxWeeklyHoursPerEmployee Int? @map("max_weekly_hours_per_employee") // in hours
-  minWeeklyHoursPerEmployee Int? @map("min_weekly_hours_per_employee") // in hours
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // relation to Company (assuming you have a Company model)
-  company Company @relation(fields: [companyId], references: [id])
+  id                        String   @id @default(uuid())
+  companyId                 String   @unique @map("company_id")
+  allowMemberSwapShifts     Boolean  @default(false) @map("allow_member_swap_shifts")
+  minShiftDuration          Int?     @map("min_shift_duration")
+  maxShiftDuration          Int?     @map("max_shift_duration")
+  minTimeBetweenShifts      Int?     @map("min_time_between_shifts")
+  maxConsecutiveWorkdays    Int?     @map("max_consecutive_workdays")
+  maxWeeklyHoursPerEmployee Int?     @map("max_weekly_hours_per_employee")
+  minWeeklyHoursPerEmployee Int?     @map("min_weekly_hours_per_employee")
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
+  company                   Company  @relation(fields: [companyId], references: [id])
 
   @@map("rota_rule_settings")
 }
 
 model ShiftSetting {
-  id        String @id @default(uuid())
-  companyId String @unique @map("company_id")
-
-  enableShiftTrading         Boolean @default(false) @map("enable_shift_trading")
-  allowTradesAcrossLocations Boolean @default(false) @map("allow_trades_across_locations")
-  allowTradesAcrossRoles     Boolean @default(false) @map("allow_trades_across_roles")
-
-  minNoticeTimeForTradeRequest  Int? @map("min_notice_time_for_trade_request") // in hours before shift
-  latestApprovalTimeBeforeShift Int? @map("latest_approval_time_before_shift") // in hours before shift starts
-
-  allowSameDayShiftTrades Boolean @default(false) @map("allow_same_day_shift_trades")
-
-  enableOpenShifts Boolean @default(false) @map("enable_open_shifts")
-
-  claimEligibility ClainEligibility? @map("claim_eligibility") @default(ALL_EMPLOYEE)
-
-  minNoticeToClaim Int? @map("min_notice_to_claim") // in hours before shift starts
-
-  limitOpenShiftsPerWeekPerEmployee Boolean @default(false) @map("limit_open_shifts_per_week_per_employee")
-
-  allowAdminOverride Boolean @default(false) @map("allow_admin_override")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // relation to Company (assuming a Company model exists)
-  company Company @relation(fields: [companyId], references: [id])
+  id                                String            @id @default(uuid())
+  companyId                         String            @unique @map("company_id")
+  enableShiftTrading                Boolean           @default(false) @map("enable_shift_trading")
+  allowTradesAcrossLocations        Boolean           @default(false) @map("allow_trades_across_locations")
+  allowTradesAcrossRoles            Boolean           @default(false) @map("allow_trades_across_roles")
+  minNoticeTimeForTradeRequest      Int?              @map("min_notice_time_for_trade_request")
+  latestApprovalTimeBeforeShift     Int?              @map("latest_approval_time_before_shift")
+  allowSameDayShiftTrades           Boolean           @default(false) @map("allow_same_day_shift_trades")
+  enableOpenShifts                  Boolean           @default(false) @map("enable_open_shifts")
+  minNoticeToClaim                  Int?              @map("min_notice_to_claim")
+  limitOpenShiftsPerWeekPerEmployee Boolean           @default(false) @map("limit_open_shifts_per_week_per_employee")
+  allowAdminOverride                Boolean           @default(false) @map("allow_admin_override")
+  createdAt                         DateTime          @default(now()) @map("created_at")
+  updatedAt                         DateTime          @updatedAt @map("updated_at")
+  claimEligibility                  ClainEligibility? @default(ALL_EMPLOYEE) @map("claim_eligibility")
+  company                           Company           @relation(fields: [companyId], references: [id])
 
   @@map("shift_trade_settings")
 }
 
 model HolidayRequestRuleSetting {
-  id        String @id @default(uuid())
-  companyId String @unique @map("company_id")
-
-  enableHolidayRequests Boolean  @default(false) @map("enable_holiday_requests")
-  holidayTypesAllowed   HolidayTypes[] @map("holiday_types_allowed")
-
-  minNoticeBeforeLeave Int?    @map("min_notice_before_leave") // days
-  maxDaysOffPerRequest Int?    @map("max_days_off_per_request") // days
-  allowHalfDayRequests Boolean @default(false) @map("allow_half_day_requests")
-
-  minTenureBeforeLeave Int?    @map("min_tenure_before_leave") // days
-  excludeNewStarters   Boolean @default(false) @map("exclude_new_starters")
-
-  approvalRequiredFrom String @map("approval_required_from")
-
-  autoApproveIfNoConflict Boolean @default(false) @map("auto_approve_if_no_conflict")
-
-  escalateUnapprovedAfterDays Int? @map("escalate_unapproved_after_days") // in days
-
-  allowMultiLevelApprovals Boolean @default(false) @map("allow_multi_level_approvals")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // relation
-  company Company @relation(fields: [companyId], references: [id])
+  id                          String         @id @default(uuid())
+  companyId                   String         @unique @map("company_id")
+  enableHolidayRequests       Boolean        @default(false) @map("enable_holiday_requests")
+  minNoticeBeforeLeave        Int?           @map("min_notice_before_leave")
+  maxDaysOffPerRequest        Int?           @map("max_days_off_per_request")
+  allowHalfDayRequests        Boolean        @default(false) @map("allow_half_day_requests")
+  minTenureBeforeLeave        Int?           @map("min_tenure_before_leave")
+  excludeNewStarters          Boolean        @default(false) @map("exclude_new_starters")
+  approvalRequiredFrom        String         @map("approval_required_from")
+  autoApproveIfNoConflict     Boolean        @default(false) @map("auto_approve_if_no_conflict")
+  escalateUnapprovedAfterDays Int?           @map("escalate_unapproved_after_days")
+  allowMultiLevelApprovals    Boolean        @default(false) @map("allow_multi_level_approvals")
+  createdAt                   DateTime       @default(now()) @map("created_at")
+  updatedAt                   DateTime       @updatedAt @map("updated_at")
+  holidayTypesAllowed         HolidayTypes[] @map("holiday_types_allowed")
+  company                     Company        @relation(fields: [companyId], references: [id])
 
   @@index([companyId])
   @@map("holiday_request_rule_settings")
 }
 
 model DigiTimeSetting {
-  id        String @id @default(uuid())
-  companyId String @unique @map("company_id")
-
-  enableTimeTracking Boolean         @default(false) @map("enable_time_tracking")
-  trackingMethod     TrackingMethod? @map("tracking_method") // CLOCK_IN_OUT, MANUAL_ENTRY, ACTIVENESS
-
-  baseHourlyRate Float   @default(0) @map("base_hourly_rate")
-  currency       String? @default("GBP") @map("currency")
-
-  allowRoleBasedRates        Boolean @default(false) @map("allow_role_based_rates")
-  allowCustomRatePerEmployee Boolean @default(false) @map("allow_custom_rate_per_employee")
-
-  productivityEnabled Boolean @default(false)
-
+  id                         String                        @id @default(uuid())
+  companyId                  String                        @unique @map("company_id")
+  enableTimeTracking         Boolean                       @default(false) @map("enable_time_tracking")
+  baseHourlyRate             Float                         @default(0) @map("base_hourly_rate")
+  currency                   String?                       @default("GBP") @map("currency")
+  allowRoleBasedRates        Boolean                       @default(false) @map("allow_role_based_rates")
+  allowCustomRatePerEmployee Boolean                       @default(false) @map("allow_custom_rate_per_employee")
+  createdAt                  DateTime                      @default(now()) @map("created_at")
+  updatedAt                  DateTime                      @updatedAt @map("updated_at")
+  enableOvertime             Boolean                       @default(false) @map("enable_overtime")
+  maxDailyOvertime           Int?                          @map("max_daily_overtime")
+  maxWeeklyOvertime          Int?                          @map("max_weekly_overtime")
+  productivityEnabled        Boolean                       @default(false)
   productivityTrackingMethod ProductivityTrackingMethods[] @map("productivity_tracking_method")
+  standardDailyHours         Int?                          @map("standard_daily_hours")
+  standardOvertimeRate       Float?                        @map("standard_overtime_rate")
+  standardWeeklyHours        Int?                          @map("standard_weekly_hours")
+  trackingType               RecurrenceType?               @map("tracking_type")
   productivityVisibility     ProductivityVisibility?       @map("visibility")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  enableOvertime Boolean @default(false) @map("enable_overtime")
-
-  trackingType RecurrenceType? @map("tracking_type") // daily, weekly, monthly
-
-  standardDailyHours  Int? @map("standard_daily_hours")
-  standardWeeklyHours Int? @map("standard_weekly_hours")
-  maxDailyOvertime    Int? @map("max_daily_overtime")
-  maxWeeklyOvertime   Int? @map("max_weekly_overtime")
-
-  standardOvertimeRate Float? @map("standard_overtime_rate")
-  weekendOvertimeRate  Float? @map("weekend_overtime_rate")
-
-  // relation
-  company Company @relation(fields: [companyId], references: [id])
-  apps    Apps[]
+  weekendOvertimeRate        Float?                        @map("weekend_overtime_rate")
+  trackingMethod             TrackingMethod?               @map("tracking_method")
+  apps                       Apps[]
+  company                    Company                       @relation(fields: [companyId], references: [id])
 
   @@index([companyId])
   @@map("digi_time_settings")
 }
 
 model Apps {
-  id        String  @id @default(uuid())
-  companyId String  @map("company_id")
-  settingId String  @map("setting_id")
+  id        String          @id @default(uuid())
+  companyId String          @map("company_id")
+  settingId String          @map("setting_id")
   name      String
   category  String?
   url       String?
-  type      AppType @default(PRODUCTIVE)
-
-  setting DigiTimeSetting @relation(fields: [settingId], references: [id])
+  type      AppType         @default(PRODUCTIVE)
+  setting   DigiTimeSetting @relation(fields: [settingId], references: [id])
 
   @@map("apps")
 }
 
 model BreakComplianceSetting {
-  id        String @id @default(uuid())
-  companyId String @unique @map("company_id")
-
-  enabled Boolean @default(false) @map("enabled")
-
-  // Relation to breaks (Tea break, Lunch break, etc.)
-  breaks BreakSetting[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  company Company @relation(fields: [companyId], references: [id])
+  id        String         @id @default(uuid())
+  companyId String         @unique @map("company_id")
+  enabled   Boolean        @default(false) @map("enabled")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+  company   Company        @relation(fields: [companyId], references: [id])
+  breaks    BreakSetting[]
 
   @@map("break_compliance_settings")
 }
 
 model BreakSetting {
-  id           String @id @default(uuid())
-  complianceId String @map("compliance_id")
-
-  name            String  @map("name") // e.g. Tea break, Lunch break
-  durationMinutes Int     @map("duration_minutes") // e.g. 15, 30
-  status          Boolean @default(true) @map("status")
-
-  compliance BreakComplianceSetting @relation(fields: [complianceId], references: [id])
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id              String                 @id @default(uuid())
+  complianceId    String                 @map("compliance_id")
+  name            String                 @map("name")
+  durationMinutes Int                    @map("duration_minutes")
+  status          Boolean                @default(true) @map("status")
+  createdAt       DateTime               @default(now()) @map("created_at")
+  updatedAt       DateTime               @updatedAt @map("updated_at")
+  compliance      BreakComplianceSetting @relation(fields: [complianceId], references: [id])
 
   @@map("break_settings")
 }
 
 model Note {
   id        String   @id @default(uuid())
-  content   String   @db.Text
+  content   String
   userId    String   @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   archived  Boolean  @default(false)
-
-  owner User @relation(fields: [userId], references: [id])
+  owner     User     @relation(fields: [userId], references: [id])
 
   @@map("notes")
 }
@@ -392,9 +343,9 @@ model Role {
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
   archived       Boolean          @default(false)
-  userRoles      UserRole[]       @relation(name: "role")
-  rolePermission RolePermission[] @relation(name: "user_permission_role")
   invitation     invitation[]
+  rolePermission RolePermission[] @relation("user_permission_role")
+  userRoles      UserRole[]       @relation("role")
 
   @@map("roles")
 }
@@ -406,7 +357,7 @@ model Permission {
   createdAt                DateTime         @default(now()) @map("created_at")
   updatedAt                DateTime         @updatedAt @map("updated_at")
   archived                 Boolean          @default(false)
-  permissionRolePermission RolePermission[] @relation(name: "user_permission_permission")
+  permissionRolePermission RolePermission[] @relation("user_permission_permission")
 
   @@map("permissions")
 }
@@ -418,8 +369,8 @@ model RolePermission {
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
   archived     Boolean    @default(false)
-  permission   Permission @relation(fields: [permissionId], references: [id], name: "user_permission_permission")
-  role         Role       @relation(fields: [roleId], name: "user_permission_role", references: [id])
+  permission   Permission @relation("user_permission_permission", fields: [permissionId], references: [id])
+  role         Role       @relation("user_permission_role", fields: [roleId], references: [id])
 
   @@map("role_permissions")
 }
@@ -433,10 +384,9 @@ model UserRole {
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
   archived   Boolean  @default(false)
-
-  role    Role     @relation(fields: [roleId], name: "role", references: [id])
-  user    User     @relation(fields: [userId], references: [id], name: "user_user_role")
-  company Company? @relation(fields: [companyId], references: [id], name: "user_company", onDelete: Cascade)
+  company    Company? @relation("user_company", fields: [companyId], references: [id], onDelete: Cascade)
+  role       Role     @relation("role", fields: [roleId], references: [id])
+  user       User     @relation("user_user_role", fields: [userId], references: [id])
 
   @@unique([userId, companyId])
   @@map("user_roles")
@@ -455,8 +405,8 @@ model Country {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
   archived        Boolean  @default(false)
-  State           State[]
   Branch          Branch[]
+  State           State[]
 
   @@map("countries")
 }
@@ -476,36 +426,35 @@ model State {
 }
 
 model Branch {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  countryCode String   @map("country_code")
-  timezone    String
-  companyId   String   @map("company_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  archived    Boolean  @default(false)
-  managerId   String?
-
-  company       Company         @relation(fields: [companyId], references: [id])
-  country       Country         @relation(fields: [countryCode], references: [code])
-  manager       Profile?        @relation(fields: [managerId], references: [userId])
-  profileBranch ProfileBranch[]
+  id             String          @id @default(uuid())
+  name           String
+  description    String?
+  companyId      String          @map("company_id")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  archived       Boolean         @default(false)
+  countryCode    String          @map("country_code")
+  timezone       String
+  managerId      String?
+  company        Company         @relation(fields: [companyId], references: [id])
+  country        Country         @relation(fields: [countryCode], references: [code])
+  manager        Profile?        @relation(fields: [managerId], references: [userId])
+  profileBranch  ProfileBranch[]
+  leave_policies LeavePolicy[]   @relation("PolicyBranches")
 
   @@index([companyId, countryCode])
   @@map("branches")
 }
 
 model Plan {
-  id          String    @id @default(uuid())
-  name        String?   @unique
+  id          String        @id @default(uuid())
+  name        String?       @unique
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  archived    Boolean       @default(false)
+  active      Boolean       @default(true)
   description String?
-  active      Boolean   @default(true)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  archived    Boolean   @default(false)
   company     Company[]
-
   planFeature PlanFeature[]
 
   @@map("plans")
@@ -513,11 +462,11 @@ model Plan {
 
 model Feature {
   id          String        @id @default(uuid())
-  name        String?
-  active      Boolean       @default(true)
+  name        String?       @unique
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
   archived    Boolean       @default(false)
+  active      Boolean       @default(true)
   planFeature PlanFeature[]
 
   @@map("features")
@@ -531,8 +480,7 @@ model Attendance {
   companyId String           @map("company_id")
   timeIn    String?          @map("time_in")
   timeOut   String?          @map("time_out")
-
-  employee User @relation(fields: [userId], references: [id])
+  employee  User             @relation(fields: [userId], references: [id])
 
   @@unique([date, userId, companyId])
   @@map("attendances")
@@ -541,7 +489,7 @@ model Attendance {
 model TermLegal {
   id        String        @id @default(uuid())
   title     String
-  content   String        @db.Text
+  content   String
   type      TermLegalType @default(TERM)
   active    Boolean       @default(true)
   createdAt DateTime      @default(now()) @map("created_at")
@@ -550,16 +498,29 @@ model TermLegal {
   @@map("terms_legals")
 }
 
-model LeavePolicy{
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  daysPerYear Int      @default(0) @map("days_per_year")
-companyId String
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  leaves Leave[]
+model LeavePolicy {
+  id                                              String   @id @default(uuid())
+  description                                     String?
+  createdAt                                       DateTime @default(now()) @map("created_at")
+  updatedAt                                       DateTime @updatedAt @map("updated_at")
+  allow_negative_balance                          Boolean  @default(false)
+  approval_level_1_id                             String?
+  approval_level_2_id                             String?
+  auto_add_new_members                            Boolean  @default(false)
+  balance_rollover                                Boolean  @default(false)
+  company_id                                      String
+  maximum_accrual_hours                           Int?
+  paid                                            Boolean  @default(true)
+  policy_joined_date                              Boolean  @default(false)
+  policy_name                                     String
+  requires_approval                               Boolean  @default(true)
+  schedule_of_accrual                             String
+  users_leave_policies_approval_level_1_idTousers User?    @relation("leave_policies_approval_level_1_idTousers", fields: [approval_level_1_id], references: [id])
+  users_leave_policies_approval_level_2_idTousers User?    @relation("leave_policies_approval_level_2_idTousers", fields: [approval_level_2_id], references: [id])
+  companies                                       Company  @relation(fields: [company_id], references: [id])
+  leaves                                          Leave[]
+  branches                                        Branch[] @relation("PolicyBranches")
+  users_PolicyMembers                             User[]   @relation("PolicyMembers")
 
   @@map("leave_policies")
 }
@@ -567,55 +528,63 @@ companyId String
 model Leave {
   id            String      @id @default(uuid())
   userId        String      @map("user_id")
-  leavePolicyId   String      @map("leave_type_id")
+  leavePolicyId String      @map("leave_type_id")
   startDate     DateTime    @map("start_date")
   endDate       DateTime    @map("end_date")
   daysRequested Int         @map("days_requested")
   reason        String?
   status        LeaveStatus
-  leavePolicy     LeavePolicy   @relation(fields: [leavePolicyId], references: [id])
   companyId     String?     @map("company_id")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
-
-  applicant User     @relation(fields: [userId], references: [id])
-  company   Company? @relation(fields: [companyId], references: [id])
+  company       Company?    @relation(fields: [companyId], references: [id])
+  leavePolicy   LeavePolicy @relation(fields: [leavePolicyId], references: [id])
+  applicant     User        @relation(fields: [userId], references: [id])
 
   @@map("leaves")
 }
 
 model PlanFeature {
-  planId    String @map("plan_id")
-  featureId String @map("feature_id")
-
-  plan    Plan    @relation(fields: [planId], references: [id])
-  feature Feature @relation(fields: [featureId], references: [id])
+  planId    String  @map("plan_id")
+  featureId String  @map("feature_id")
+  hasLimit  Boolean @default(false)
+  maxLimit  Int?    @default(1)
+  feature   Feature @relation(fields: [featureId], references: [id])
+  plan      Plan    @relation(fields: [planId], references: [id])
 
   @@id([planId, featureId])
   @@map("plan_features")
 }
 
 model Task {
-  id           Int             @id @default(autoincrement())
-  title        String
-  description  String?
-  isRecurring  Boolean         @default(false) @map("is_recurring")
-  recurrence   RecurrenceType?
-  interval     Int?
-  startDate    DateTime        @map("start_date")
-  endDate      DateTime?       @map("end_date")
-  dueDate      DateTime?       @map("due_date")
-  status       TaskStatus      @default(DRAFT)
-  userId       String          @map("user_id")
-  companyId    String          @map("company_id")
-  parentTaskId Int?            @map("parent_task_id") // for subtask relationship
-  parentTask   Task?           @relation("Subtasks", fields: [parentTaskId], references: [id])
-  subtasks     Task[]          @relation("Subtasks")
-  createdAt    DateTime        @default(now()) @map("created_at")
-  updatedAt    DateTime        @updatedAt @map("updated_at")
-
-  assignedTo User    @relation(fields: [userId], references: [id])
-  company    Company @relation(fields: [companyId], references: [id])
+  id              String            @id
+  title           String
+  description     String?
+  isRecurring     Boolean           @default(false) @map("is_recurring")
+  recurrence      RecurrenceType?
+  interval        Int?
+  startDate       DateTime          @map("start_date")
+  endDate         DateTime?         @map("end_date")
+  dueDate         DateTime?         @map("due_date")
+  status          TaskStatus        @default(DRAFT)
+  companyId       String            @map("company_id")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  category        String[]
+  checklist       String[]
+  finishTime      String?
+  manager_id      String
+  metrics         Int               @default(0)
+  priority        Priority          @default(LOW)
+  stage_id        String?
+  startTime       String?
+  tags            String[]
+  time_type       String
+  task_assignees  task_assignees[]
+  task_stage_logs task_stage_logs[]
+  company         Company           @relation(fields: [companyId], references: [id])
+  users           User              @relation(fields: [manager_id], references: [id])
+  task_stages     task_stages?      @relation(fields: [stage_id], references: [id])
 
   @@map("tasks")
 }
@@ -626,10 +595,9 @@ model Demo {
   email       String
   bookedDate  DateTime @map("booked_date")
   name        String
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  archived  Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  archived    Boolean  @default(false)
 
   @@map("demos")
 }
@@ -637,7 +605,7 @@ model Demo {
 model NewsEvent {
   id          String        @id @default(uuid())
   title       String
-  description String?       @db.Text
+  description String?
   date        DateTime?
   time        String?
   type        NewsEventType
@@ -655,10 +623,9 @@ model Celebration {
   description String
   date        DateTime
   userid      String?
-
-  celebrant User?    @relation(fields: [userid], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  celebrant   User?    @relation(fields: [userid], references: [id])
 
   @@map("celebrations")
 }
@@ -671,49 +638,77 @@ model Rota {
   notes     String?
   shiftType ShiftType @map("shift_type")
   userId    String    @map("user_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
   user      User      @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("rotas")
 }
 
 model invitation {
-  id         String   @id @default(uuid())
-  email      String
-  inviteLink String   @map("invite_link")
-  companyId  String   @map("company_id")
-  userId     String?  @map("user_id")
-  memberId   String?
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-  archived   Boolean  @default(false)
-  invitedBy  String?  @map("invited_by")
-  roleId     String   @map("role_id")
-
-  role          Role    @relation(fields: [roleId], references: [id])
-  company       Company @relation(fields: [companyId], references: [id])
-  user          User?   @relation(fields: [userId], references: [id], name: "invitation_user")
-  invitedByUser User?   @relation(fields: [invitedBy], references: [id], name: "invitation_invited_by_user")
+  id            String   @id @default(uuid())
+  email         String
+  inviteLink    String   @map("invite_link")
+  companyId     String   @map("company_id")
+  userId        String?  @map("user_id")
+  memberId      String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  archived      Boolean  @default(false)
+  invitedBy     String?  @map("invited_by")
+  roleId        String   @map("role_id")
+  company       Company  @relation(fields: [companyId], references: [id])
+  invitedByUser User?    @relation("invitation_invited_by_user", fields: [invitedBy], references: [id])
+  role          Role     @relation(fields: [roleId], references: [id])
+  user          User?    @relation("invitation_user", fields: [userId], references: [id])
 
   @@map("invitations")
 }
 
 model jobRole {
-  id        String @id @default(uuid())
-  name      String
-  color     String
-  companyId String @map("company_id")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  archived  Boolean  @default(false)
-
-  company        Company          @relation(fields: [companyId], references: [id], name: "company_job_roles")
-  jobInformation JobInformation[] @relation(name: "employee_job_role")
+  id             String           @id @default(uuid())
+  name           String
+  color          String
+  companyId      String           @map("company_id")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  archived       Boolean          @default(false)
+  jobInformation JobInformation[] @relation("employee_job_role")
+  company        Company          @relation("company_job_roles", fields: [companyId], references: [id])
 
   @@map("job_roles")
+}
+
+model task_assignees {
+  user_id String
+  task_id String
+  tasks   Task   @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  users   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([task_id, user_id])
+}
+
+model task_stage_logs {
+  id                                                     String       @id
+  task_id                                                String
+  from_stage_id                                          String?
+  to_stage_id                                            String
+  moved_by_id                                            String
+  moved_at                                               DateTime     @default(now())
+  task_stages_task_stage_logs_from_stage_idTotask_stages task_stages? @relation("task_stage_logs_from_stage_idTotask_stages", fields: [from_stage_id], references: [id])
+  users                                                  User         @relation(fields: [moved_by_id], references: [id])
+  tasks                                                  Task         @relation(fields: [task_id], references: [id])
+  task_stages_task_stage_logs_to_stage_idTotask_stages   task_stages  @relation("task_stage_logs_to_stage_idTotask_stages", fields: [to_stage_id], references: [id])
+}
+
+model task_stages {
+  id                                                         String            @id
+  name                                                       String
+  companyId                                                  String
+  task_stage_logs_task_stage_logs_from_stage_idTotask_stages task_stage_logs[] @relation("task_stage_logs_from_stage_idTotask_stages")
+  task_stage_logs_task_stage_logs_to_stage_idTotask_stages   task_stage_logs[] @relation("task_stage_logs_to_stage_idTotask_stages")
+  companies                                                  Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  tasks                                                      Task[]
 }
 
 enum RecurrenceType {
@@ -744,8 +739,8 @@ enum ShiftType {
 }
 
 enum NewsEventType {
-  NEWS // Money added to wallet
-  EVENT // Money deducted from wallet
+  NEWS
+  EVENT
 }
 
 enum LeaveStatus {
@@ -773,14 +768,14 @@ enum Gender {
 }
 
 enum BloodGroup {
-  A_POS // A+
-  A_NEG // A-
-  B_POS // B+
-  B_NEG // B-
-  AB_POS // AB+
-  AB_NEG // AB-
-  O_POS // O+
-  O_NEG // O-
+  A_POS
+  A_NEG
+  B_POS
+  B_NEG
+  AB_POS
+  AB_NEG
+  O_POS
+  O_NEG
 }
 
 enum Relationship {
@@ -807,14 +802,14 @@ enum Relationship {
 }
 
 enum WorkType {
-  REMOTE // Fully remote
-  ON_SITE // Work from office
-  HYBRID // Mix of remote and on-site
-  CONTRACT // Short-term, contract-based work
-  FREELANCE // Project-based independent work
-  INTERNSHIP // Temporary position for students or trainees
-  PART_TIME // Less than full-time hours
-  FULL_TIME // Standard full-time employment
+  REMOTE
+  ON_SITE
+  HYBRID
+  CONTRACT
+  FREELANCE
+  INTERNSHIP
+  PART_TIME
+  FULL_TIME
 }
 
 enum TermLegalType {
@@ -839,7 +834,6 @@ enum ProductivityTrackingMethods {
   SELF_REPORT
 }
 
-// Enum for where productivity score is shown
 enum ProductivityVisibility {
   EMPLOYEE_DASHBOARD
   MANAGER_OVERVIEW
@@ -871,11 +865,21 @@ enum ClainEligibility {
   BY_BRANCH
 }
 
-
 enum HolidayTypes {
   PAID_LEAVE
   UNPAID_LEAVE
   SICK_LEAVE
   SABATICAL
   MATERNITY
+}
+
+enum AccrualSchedule {
+  MONTHLY
+  ANNUALLY
+}
+
+enum Priority {
+  HIGH
+  LOW
+  MEDIUM
 }

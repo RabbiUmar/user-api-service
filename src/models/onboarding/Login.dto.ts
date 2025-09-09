@@ -9,7 +9,7 @@ export class LoginDTO {
   })
   @IsString()
   @IsNotEmpty()
-  username?: string;
+  username: string;
 
   @ApiProperty({
     description: 'pass phrase to the users model',
@@ -18,7 +18,7 @@ export class LoginDTO {
   })
   @IsString()
   @IsOptional()
-  password?: string;
+  password: string;
 
   @ApiProperty({
     description: 'lOGIN TYPE FIELD',
@@ -27,5 +27,5 @@ export class LoginDTO {
   })
   @IsString()
   @IsOptional()
-  type?: 'SOCIAL' | 'NON_SOCIAL';
+  type: 'SOCIAL' | 'NON_SOCIAL';
 }

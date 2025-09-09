@@ -1,9 +1,12 @@
-import { Controller, Get, Param, Query, Request } from "@nestjs/common";
-import { ApiQuery, ApiTags } from "@nestjs/swagger";
-import { RouteName } from "src/decorators/route-name.decorator";
-import { BaseService } from "src/services/base.service";
-import { ResponsesService } from "src/utils/services/responses.service";
-import { UtilsService } from "src/utils/services/utils.service";
+
+import { Controller, Get, Param, Query, Request } from '@nestjs/common';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { RouteName } from 'src/decorators/route-name.decorator';
+import { PlanService } from 'src/enums/plan.service';
+import { BaseService } from 'src/services/base.service';
+import { RoleService } from 'src/services/role.service';
+import { ResponsesService } from 'src/utils/services/responses.service';
+import { UtilsService } from 'src/utils/services/utils.service';
 
 @ApiTags('Base')
 @Controller('base')
@@ -12,6 +15,8 @@ export class BaseController {
     private readonly baseService: BaseService,
     private readonly responseService: ResponsesService,
     private readonly utilService: UtilsService,
+    private readonly planService: PlanService,
+    private readonly roleService: RoleService,
   ) {}
   @Get('country')
   @RouteName('base.country')
@@ -95,5 +100,30 @@ export class BaseController {
       return this.responseService.exception(e.message);
     }
   }
-}
 
+  @Get('plans')
+  @RouteName('base.plans')
+  async basePlans() {
+    try {
+      const result = await this.planService.list();
+      if (result.error == 1) return this.responseService.notFound(result.body);
+      if (result.error == 2) return this.responseService.exception(result.body);
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
+    }
+  }
+
+  @Get('roles')
+  @RouteName('base.roles')
+  async baseRoles() {
+    try {
+      const result = await this.roleService.list();
+      if (result.error == 1) return this.responseService.notFound(result.body);
+      if (result.error == 2) return this.responseService.exception(result.body);
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
+    }
+  }
+}
