@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 
 import { Queue } from 'bullmq';
 import { PrismaService } from 'src/config/prisma.service';
-import { InjectMailQueue, InjectSMSQueue, InjectFileQueue } from 'src/decorators/queue.decorator';
+import { InjectMailQueue, InjectSMSQueue } from 'src/decorators/queue.decorator';
 import { mailSubjects, mailTemplates } from 'src/enums/subjects.enum';
 import { InviteEmailFields, SendMailDto } from 'src/models/notification/mail.dto';
 import { UpdateProfileDto, EmployeeDto } from 'src/models/onboarding/profile.dto';
@@ -20,7 +20,7 @@ export class UserService extends PrismaService {
   constructor(
     @InjectMailQueue() private mailQueue: Queue,
     @InjectSMSQueue() private smsQueue: Queue,
-    @InjectFileQueue() private fileQueue: Queue,
+    // @InjectFileQueue() private fileQueue: Queue,
     private readonly utilsService: UtilsService,
     private readonly otpService: OtpService,
     private readonly responseService: ResponsesService,
@@ -647,6 +647,7 @@ export class UserService extends PrismaService {
 
   async sendOtpPhone(phoneNumber: string) {
     try {
+      console.log('sending otp to '+phoneNumber)
       const otpCode = this.otpService.secretOTP();
       const maidData = {
         to: phoneNumber,

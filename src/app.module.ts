@@ -7,7 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { JwtConfig } from './config/jwt.config';
 import { MailConfig } from './config/mail.config';
-import { QueueConfig, QueueRegister } from './config/queue.config';
+import { QueueConfig } from './config/queue.config';
 import { PlanController } from './controllers/plan.controller';
 import { StatusInterceptor } from './interceptors/status.interceptor';
 import { AuthController } from './controllers/auth.controller';
@@ -15,9 +15,10 @@ import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
 import { RoleService } from './services/role.service';
 import { TermLegalService } from './services/term-legal.service';
-import { BullModule } from '@nestjs/bullmq';
 import { PrismaService } from './config/prisma.service';
 import { PlanService } from './enums/plan.service';
+import { bullboardConfig } from './config/bull-board.config';
+import { QueueModuleConfig } from './config/queue.module.config';
 
 @Module({
   imports: [
@@ -26,10 +27,10 @@ import { PlanService } from './enums/plan.service';
     //   rootPath: './public',
     //   serveRoot: '/public',
     // }),
-    QueueRegister,
     QueueConfig,
     JwtConfig,
     MailConfig,
+    QueueModuleConfig,
     ConfigModule.forRoot(),
     HttpModule,
     UtilsModule,
